@@ -55,7 +55,7 @@ public class UserController {
 		if (user.isPresent()) {
 			user.get().setAddress(address);
 			userRepository.save(user.get());
-			return "Address updated successfully";
+			return "your address updated successfully";
 		}
 		return "User Not Found";
 	}
