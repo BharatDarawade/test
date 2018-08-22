@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,48 +12,47 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.demo.dao.UserRepository;
+import com.example.demo.dao.UserDALImpl;
 import com.example.demo.model.User;
 
 @RestController
 public class UserController {
+	//@Autowired
+	//UserRepository userRepository;
 	@Autowired
-	UserRepository userRepository;
+	UserDALImpl userDAL;
 	private final Logger LOG = LoggerFactory.getLogger(getClass());
 
 	@RequestMapping(value = "/create", method = RequestMethod.POST)
 	public User addNewUsers(@RequestBody User user) {
 		LOG.info("Saving user.");
-		return userRepository.save(user);
+		return userDAL.addNewUser(user);
 	}
 
 	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-	public Optional<User> getUser(@PathVariable String userId) {
+	public User getUser(@PathVariable String userId) {
 		LOG.info("Getting user with ID: {}.", userId);
-		return userRepository.findById(userId);
+		return userDAL.getUserById(userId);
 	}
 
 	@RequestMapping(value = "/getAll", method = RequestMethod.GET)
 	public List<User> getAllUsers() {
 		LOG.info("Getting all users.");
-		return userRepository.findAll();
+		return userDAL.getAllUsers();
 	}
 
 	// get User address
-	@GetMapping("/getAddress/{userId}")
-	public String getMobileNo(@PathVariable String userId) {
-		Optional<User> user = userRepository.findById(userId);
-		if (user.isPresent())
-			return user.get().getAddress();
-		return "User Not Found";
+	@GetMapping("/getAddress/{mobileNo}")
+	public String getMobileNo(@PathVariable String mobileNo) {
+		return userDAL.getAddress(mobileNo);
 	}
 
 	@GetMapping("/updateAddress/{userId}/{address}")
 	public String updateAddress(@PathVariable String userId, @PathVariable String address) {
-		Optional<User> user = userRepository.findById(userId);
-		if (user.isPresent()) {
-			user.get().setAddress(address);
-			userRepository.save(user.get());
+		User user = userDAL.getUserById(userId);
+		if (user!=null) {
+			user.setAddress(address);
+			userDAL.addNewUser(user);
 			return "your address updated successfully";
 		}
 		return "User Not Found";
